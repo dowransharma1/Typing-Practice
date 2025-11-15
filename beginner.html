@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beginner Typing Practice</title>
+
+<style>
+    body {
+        background: #0a0f1f;
+        font-family: Arial, sans-serif;
+        color: #fff;
+        text-align: center;
+        padding: 20px;
+    }
+
+    h1 {
+        color: #00eaff;
+        text-shadow: 0 0 10px #00eaff;
+    }
+
+    #letterBox {
+        margin: 30px auto;
+        font-size: 120px;
+        font-weight: bold;
+        color: #ffd700;
+        text-shadow: 0 0 25px #ffd700;
+    }
+
+    #stats {
+        margin: 25px;
+        font-size: 20px;
+    }
+
+    #keyboard {
+        margin-top: 40px;
+    }
+
+    .key {
+        display: inline-block;
+        background: #1c2333;
+        border-radius: 10px;
+        padding: 18px;
+        margin: 5px;
+        width: 50px;
+        color: #fff;
+        border: 2px solid #00eaff;
+        transition: 0.2s;
+    }
+
+    .key.correct {
+        background: #0f0;
+        box-shadow: 0 0 15px #00ff00;
+    }
+
+    .key.wrong {
+        background: #ff0000;
+        box-shadow: 0 0 15px #ff0000;
+    }
+
+    #progressBar {
+        width: 80%;
+        height: 20px;
+        background: #333;
+        margin: 20px auto;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    #progressFill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(to right, #00eaff, #0077ff);
+        transition: 0.3s;
+    }
+</style>
+
+</head>
+<body>
+
+<h1>Beginner Typing Practice</h1>
+
+<div id="letterBox">A</div>
+
+<div id="stats">
+    WPM: <span id="wpm">0</span> |
+    Accuracy: <span id="accuracy">100</span>% |
+    Correct: <span id="correctCount">0</span> |
+    Mistakes: <span id="wrongCount">0</span>
+</div>
+
+<div id="progressBar"><div id="progressFill"></div></div>
+
+<h3>Keyboard</h3>
+
+<div id="keyboard"></div>
+
+<audio id="keySound">
+    <source src="https://www.fesliyanstudios.com/play-mp3/387" type="audio/mpeg">
+</audio>
+
+<script>
+let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+let index = 0;
+let correct = 0;
+let wrong = 0;
+let startTime = null;
+
+// Generate keyboard layout
+let keyboardDiv = document.getElementById("keyboard");
+letters.split("").forEach(l => {
+    let key = document.createElement("div");
+    key.className = "key";
+    key.id = "key-" + l;
+    key.innerText = l;
+    keyboardDiv.appendChild(key);
+});
+
+// Show next letter
+function updateLetter() {
+    document.getElementById("letterBox").textContent = letters[index];
+
+    let progress = ((index / letters.length) * 100);
+    document.getElementById("progressFill").style.width = progress + "%";
+}
+
+updateLetter();
+
+// Listen for key press
+document.addEventListener("keydown", function(event) {
+    let pressed = event.key.toUpperCase();
+    let currentLetter = letters[index];
+
+    if (!startTime) startTime = new Date();
+
+    if (document.getElementById("keySound")) {
+        document.getElementById("keySound").play();
+    }
+
+    let keyDiv = document.getElementById("key-" + pressed);
+
+    if (!keyDiv) return;
+
+    if (pressed === currentLetter) {
+        keyDiv.classList.add("correct");
+        setTimeout(() => keyDiv.classList.remove("correct"), 300);
+
+        correct++;
+        index++;
+
+        if (index >= letters.length) {
+            index = 0;
+            alert("Lesson Complete! 🎉");
+        }
+
+        updateLetter();
+    } else {
+        keyDiv.classList.add("wrong");
+        setTimeout(() => keyDiv.classList.remove("wrong"), 300);
+
+        wrong++;
+    }
+
+    let timePassed = (new Date() - startTime) / 60000;
+    let wpm = Math.floor(correct / timePassed);
+
+    document.getElementById("correctCount").textContent = correct;
+    document.getElementById("wrongCount").textContent = wrong;
+    document.getElementById("accuracy").textContent =
+        Math.floor((correct / (correct + wrong)) * 100);
+    document.getElementById("wpm").textContent = wpm;
+});
+</script>
+
+</body>
+</html>
