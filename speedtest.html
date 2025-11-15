@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced Typing Speed Test</title>
+
+<style>
+    body {
+        background: #080d1f;
+        color: #fff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 40px;
+        color: #00eaff;
+        text-shadow: 0 0 15px #00eaff;
+    }
+
+    #timerButtons button {
+        background: #00eaff;
+        color: black;
+        border: none;
+        padding: 12px 25px;
+        margin: 10px;
+        font-size: 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: 0 0 10px #00eaff;
+    }
+
+    #wordBox {
+        margin: 30px auto;
+        width: 85%;
+        font-size: 28px;
+        line-height: 40px;
+        padding: 20px;
+        border-radius: 15px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid #00eaff;
+        box-shadow: 0 0 25px rgba(0,255,255,0.3);
+        min-height: 120px;
+    }
+
+    #inputBox {
+        width: 80%;
+        padding: 15px;
+        margin-top: 25px;
+        font-size: 20px;
+        border-radius: 10px;
+        background: #111933;
+        border: 2px solid #00eaff;
+        color: white;
+    }
+
+    #stats {
+        margin-top: 20px;
+        font-size: 20px;
+    }
+
+    #results {
+        display: none;
+        margin-top: 25px;
+        padding: 20px;
+        border-radius: 15px;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid #00eaff;
+        box-shadow: 0 0 25px rgba(0,255,255,0.3);
+    }
+
+    #restartBtn {
+        margin-top: 20px;
+        background: #00eaff;
+        color: #000;
+        padding: 12px 25px;
+        font-size: 18px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+    }
+
+</style>
+</head>
+
+<body>
+
+<h1>Advanced Typing Speed Test</h1>
+
+<div id="timerButtons">
+    <button onclick="startTest(60)">⏱ 1 Minute Test</button>
+    <button onclick="startTest(300)">⏱ 5 Minute Test</button>
+</div>
+
+<h2 id="countdown">Select a test to begin</h2>
+
+<div id="wordBox"></div>
+
+<input id="inputBox" type="text" placeholder="Start typing here..." disabled>
+
+<div id="stats">
+    WPM: <span id="wpm">0</span> |
+    Accuracy: <span id="accuracy">100</span>% |
+    Mistakes: <span id="mistakes">0</span>
+</div>
+
+<div id="results">
+    <h2>⏳ Final Results</h2>
+    <p>WPM: <span id="finalWpm"></span></p>
+    <p>Accuracy: <span id="finalAccuracy"></span>%</p>
+    <p>Mistakes: <span id="finalMistakes"></span></p>
+    <button id="restartBtn" onclick="location.reload()">Restart Test</button>
+</div>
+
+<script>
+let words = [
+    "time", "world", "keyboard", "typing", "speed", "practice", "computer", "student",
+    "learning", "accuracy", "challenge", "improve", "technology", "future", "master",
+    "focus", "digital", "typing test", "developer", "creative", "random", "progress",
+    "language", "power", "typing speed", "motivation", "skill"
+];
+
+let timer, timeLeft;
+let mistakes = 0;
+let correct = 0;
+let hasStarted = false;
+
+function generateWords() {
+    let generated = "";
+    for (let i = 0; i < 40; i++) {
+        generated += words[Math.floor(Math.random() * words.length)] + " ";
+    }
+    document.getElementById("wordBox").textContent = generated.trim();
+}
+
+function startTest(seconds) {
+    timeLeft = seconds;
+    document.getElementById("inputBox").disabled = false;
+    document.getElementById("inputBox").focus();
+    generateWords();
+
+    timer = setInterval(updateTimer, 1000);
+}
+
+function updateTimer() {
+    document.getElementById("countdown").textContent = `⏳ Time Left: ${timeLeft}s`;
+    timeLeft--;
+
+    if (timeLeft < 0) {
+        endTest();
+    }
+}
+
+document.getElementById("inputBox").addEventListener("input", function () {
+    if (!hasStarted) {
+        startTime = new Date();
+        hasStarted = true;
+    }
+
+    let input = this.value;
+    let target = document.getElementById("wordBox").textContent;
+
+    if (input.length > target.length) return;
+
+    correct = 0;
+    mistakes = 0;
+
+    for (let i = 0; i < input.length; i++) {
+        if (input[i] === target[i]) {
+            correct++;
+        } else {
+            mistakes++;
+        }
+    }
+
+    let accuracy = Math.floor((correct / (correct + mistakes)) * 100);
+    document.getElementById("accuracy").textContent = accuracy;
+
+    let timePassed = (new Date() - startTime) / 60000;
+    let wpm = Math.floor(correct / 5 / timePassed);
+    document.getElementById("wpm").textContent = wpm;
+
+    document.getElementById("mistakes").textContent = mistakes;
+});
+
+function endTest() {
+    clearInterval(timer);
+
+    document.getElementById("inputBox").disabled = true;
+
+    let finalWpm = document.getElementById("wpm").textContent;
+    let finalAccuracy = document.getElementById("accuracy").textContent;
+    let finalMistakes = document.getElementById("mistakes").textContent;
+
+    document.getElementById("finalWpm").textContent = finalWpm;
+    document.getElementById("finalAccuracy").textContent = finalAccuracy;
+    document.getElementById("finalMistakes").textContent = finalMistakes;
+
+    document.getElementById("results").style.display = "block";
+}
+</script>
+
+</body>
+</html>
