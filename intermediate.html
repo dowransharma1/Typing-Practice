@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Intermediate Typing Practice</title>
+
+<style>
+    body {
+        background: #0b1020;
+        font-family: Arial, sans-serif;
+        color: white;
+        text-align: center;
+        padding: 20px;
+    }
+
+    h1 {
+        color: #00eaff;
+        font-size: 40px;
+        text-shadow: 0 0 10px #00eaff;
+    }
+
+    #sentenceBox {
+        margin: 30px auto;
+        width: 90%;
+        font-size: 26px;
+        background: rgba(255,255,255,0.05);
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #00eaff;
+        box-shadow: 0 0 20px rgba(0,255,255,0.2);
+    }
+
+    #inputBox {
+        width: 90%;
+        padding: 15px;
+        font-size: 20px;
+        margin-top: 20px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        background: #111a33;
+        color: white;
+        border: 2px solid #00eaff;
+    }
+
+    #stats {
+        margin: 20px;
+        font-size: 20px;
+    }
+
+    #progressBar {
+        width: 80%;
+        height: 18px;
+        background: #333;
+        margin: 20px auto;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    #progressFill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(to right, #00eaff, #0066ff);
+        transition: 0.4s;
+    }
+
+    .correctChar {
+        color: #00ff55;
+    }
+
+    .wrongChar {
+        color: #ff4444;
+        text-decoration: underline;
+    }
+</style>
+</head>
+
+<body>
+
+<h1>Intermediate Typing Practice</h1>
+
+<div id="sentenceBox"></div>
+
+<input type="text" id="inputBox" placeholder="Start typing here..." autofocus>
+
+<div id="stats">
+    WPM: <span id="wpm">0</span> |
+    Accuracy: <span id="accuracy">100</span>% |
+    Completed: <span id="completed">0</span> /
+               <span id="total">10</span>
+</div>
+
+<div id="progressBar"><div id="progressFill"></div></div>
+
+<audio id="typeSound">
+    <source src="https://www.fesliyanstudios.com/play-mp3/387" type="audio/mpeg">
+</audio>
+
+<script>
+let sentences = [
+    "Typing practice helps improve your speed.",
+    "Accuracy is more important than going fast.",
+    "Practice every day to become a typing master.",
+    "Use all your fingers to type correctly.",
+    "Keep your eyes on the screen, not on the keyboard.",
+    "Learning typing is easy and fun.",
+    "Try to reduce mistakes while typing.",
+    "Speed comes naturally when your fingers learn positions.",
+    "Typing is an important computer skill.",
+    "You can type faster with regular practice."
+];
+
+let index = 0;
+let correct = 0;
+let wrong = 0;
+let startTime = null;
+
+document.getElementById("total").textContent = sentences.length;
+
+function loadSentence() {
+    document.getElementById("sentenceBox").innerHTML = sentences[index];
+    document.getElementById("inputBox").value = "";
+
+    let progress = ((index / sentences.length) * 100);
+    document.getElementById("progressFill").style.width = progress + "%";
+}
+loadSentence();
+
+document.getElementById("inputBox").addEventListener("input", function () {
+    let sound = document.getElementById("typeSound");
+    sound.play();
+
+    if (!startTime) startTime = new Date();
+
+    let typed = this.value;
+    let sentence = sentences[index];
+
+    let displayHTML = "";
+    wrong = 0;
+
+    for (let i = 0; i < sentence.length; i++) {
+        if (i < typed.length) {
+            if (typed[i] === sentence[i]) {
+                displayHTML += `<span class="correctChar">${sentence[i]}</span>`;
+                correct++;
+            } else {
+                displayHTML += `<span class="wrongChar">${sentence[i]}</span>`;
+                wrong++;
+            }
+        } else {
+            displayHTML += sentence[i];
+        }
+    }
+
+    document.getElementById("sentenceBox").innerHTML = displayHTML;
+
+    if (typed === sentence) {
+        index++;
+
+        document.getElementById("completed").textContent = index;
+
+        if (index >= sentences.length) {
+            alert("🎉 All lessons completed! Good job!");
+            return;
+        }
+
+        loadSentence();
+    }
+
+    let timePassed = (new Date() - startTime) / 60000;
+    let wpm = Math.floor(correct / 5 / timePassed);
+
+    document.getElementById("wpm").textContent = wpm;
+    document.getElementById("accuracy").textContent =
+        Math.floor((correct / (correct + wrong)) * 100);
+});
+</script>
+
+</body>
+</html>
