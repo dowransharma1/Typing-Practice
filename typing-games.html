@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Typing Games — Balloon Pop · Word Shooter · Rain Words</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#05060a; --card:#0f1724; --accent:#00eaff; --accent2:#ffd700;
+      --glass: rgba(255,255,255,0.04);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:'Poppins',sans-serif; background:linear-gradient(135deg,var(--bg1),#0a0f22);
+      color:#fff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      min-height:100vh; display:flex; align-items:flex-start; justify-content:center; padding:30px;
+    }
+
+    .wrap{
+      width:100%; max-width:1100px; border-radius:16px; overflow:hidden;
+      box-shadow:0 10px 40px rgba(0,0,0,0.6);
+      border:1px solid rgba(255,255,255,0.03);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
+
+    header.appbar{
+      padding:22px 28px; display:flex; align-items:center; justify-content:space-between;
+      border-bottom:1px solid rgba(255,255,255,0.03);
+    }
+    .brand{display:flex; align-items:center; gap:14px}
+    .brand .logo{
+      height:56px; width:56px; border-radius:10px;
+      background:linear-gradient(135deg,var(--accent),#0077ff);
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 6px 18px rgba(0,150,255,0.15);
+      font-family:'Orbitron'; font-weight:700; color:#051026;
+      font-size:20px;
+    }
+    .brand h1{margin:0;font-family:'Orbitron';font-size:20px;color:var(--accent)}
+    .brand p{margin:0;color:#bfc9d9;font-size:13px}
+
+    .controls{
+      display:flex; gap:12px; align-items:center;
+    }
+    select, button {
+      background:var(--card); color:#fff; border:1px solid rgba(255,255,255,0.03);
+      padding:8px 12px; border-radius:10px; font-size:14px;
+    }
+    button.primary{
+      background: linear-gradient(90deg,var(--accent),#0066ff); color:#001218;
+      font-weight:700; padding:10px 16px; box-shadow:0 8px 25px rgba(0,170,255,0.12);
+    }
+
+    main.content{
+      display:flex; gap:20px; padding:22px;
+    }
+
+    /* left panel = game area */
+    .game-area{
+      flex:1; min-height:560px; background:var(--glass); border-radius:12px; padding:18px; position:relative;
+      border:1px solid rgba(255,255,255,0.02);
+      overflow:hidden;
+    }
+    .game-top{
+      display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;
+    }
+    .meta {display:flex; gap:12px; align-items:center}
+    .meta .chip {background:rgba(0,0,0,0.25); padding:8px 10px; border-radius:10px; font-weight:600; color:#dfe;}
+    .board {
+      position:relative; width:100%; height:420px; background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01));
+      border-radius:10px; overflow:hidden; border:1px dashed rgba(255,255,255,0.03);
+    }
+
+    /* word elements */
+    .word {
+      position:absolute; padding:8px 12px; border-radius:999px; background:linear-gradient(90deg,var(--accent),#0066ff);
+      color:#001218; font-weight:700; box-shadow:0 8px 24px rgba(0,160,255,0.12);
+      white-space:nowrap; transform:translate(-50%,-50%);
+    }
+
+    /* balloon style */
+    .balloon {
+      border-radius:50%; width:auto; padding:10px 14px; color:#001218;
+      background: linear-gradient(180deg,#ffd66b,#ffb700);
+      box-shadow:0 18px 30px rgba(255,180,0,0.12);
+      font-weight:700;
+    }
+
+    /* shooter style */
+    .target {
+      background:linear-gradient(90deg,#ff7a7a,#ffb86b); color:#111; padding:10px 14px; border-radius:12px;
+    }
+
+    /* rain style */
+    .drop {
+      background:linear-gradient(180deg,#7afcff,#00b7ff);
+      color:#012; padding:8px 12px; border-radius:8px; font-weight:700;
+    }
+
+    /* right panel */
+    .side {
+      width:320px; display:flex; flex-direction:column; gap:12px;
+    }
+    .panel{background:rgba(255,255,255,0.02); padding:14px; border-radius:10px;}
+    .panel h3{margin:0 0 8px 0; color:var(--accent)}
+    .stats {display:flex; gap:8px; flex-wrap:wrap}
+    .stat {
+      background:rgba(0,0,0,0.22); padding:10px 12px; border-radius:8px; min-width:120px;
+      font-weight:700; color:#e7faff;
+    }
+
+    .input-wrap {display:flex; gap:8px; margin-top:10px}
+    #typingInput {flex:1; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.03); background:#0c1324; color:#fff}
+
+    .footer-note {font-size:12px; color:#aabbd1; margin-top:8px}
+
+    /* responsive */
+    @media(max-width:980px){
+      main.content{flex-direction:column}
+      .side{width:100%}
+      .board{height:320px}
+    }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="appbar">
+      <div class="brand">
+        <div class="logo">TM</div>
+        <div>
+          <h1>Typing Master 3D Hub</h1>
+          <p>Games · Practice · Speed · Fun</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <select id="gameSelect" title="Choose Game">
+          <option value="balloon">🎈 Balloon Pop</option>
+          <option value="shooter">🔫 Word Shooter</option>
+          <option value="rain">🌧️ Rain Words</option>
+        </select>
+
+        <select id="difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+
+        <button class="primary" id="startBtn">Start</button>
+        <button id="pauseBtn">Pause</button>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="game-area" id="gameArea">
+        <div class="game-top">
+          <div class="meta">
+            <div class="chip" id="modeChip">Mode: Balloon Pop</div>
+            <div class="chip" id="timeChip">Time: 60s</div>
+            <div class="chip" id="scoreChip">Score: 0</div>
+          </div>
+
+          <div>
+            <div class="chip">Player: Guest</div>
+          </div>
+        </div>
+
+        <div class="board" id="board"></div>
+
+        <div style="margin-top:12px; display:flex; gap:10px; align-items:center;">
+          <div style="flex:1">
+            <div class="input-wrap">
+              <input id="typingInput" placeholder="Type here and press Enter" autocomplete="off" />
+              <button id="clearBtn">Clear</button>
+            </div>
+            <div class="footer-note">Tip: Type the exact word and press Enter. Faster matches pop targets!</div>
+          </div>
+          <div style="width:140px; text-align:center">
+            <div class="panel" style="margin-bottom:8px">
+              <h3>Game Controls</h3>
+              <div style="display:flex; flex-direction:column; gap:8px">
+                <button id="restartBtn">Restart</button>
+                <button id="muteBtn">Mute</button>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Settings</h3>
+              <div style="font-size:13px; color:#cfe">Spawn: <span id="spawnRateLabel">Normal</span></div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <aside class="side">
+        <div class="panel">
+          <h3>Game Info</h3>
+          <div class="stats">
+            <div class="stat">Score <div id="statScore">0</div></div>
+            <div class="stat">Hits <div id="statHits">0</div></div>
+            <div class="stat">Misses <div id="statMiss">0</div></div>
+            <div class="stat">Lives <div id="statLives">5</div></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Difficulty</h3>
+          <div style="display:flex; gap:6px; margin-top:8px">
+            <button onclick="setDiff('easy')">Easy</button>
+            <button onclick="setDiff('medium')">Medium</button>
+            <button onclick="setDiff('hard')">Hard</button>
+          </div>
+          <p style="margin-top:8px; color:#cfe; font-size:13px">Easy = short words, slow spawn. Hard = long words, fast spawn.</p>
+        </div>
+
+        <div class="panel">
+          <h3>How to Play</h3>
+          <ol style="text-align:left; font-size:14px; color:#cfe">
+            <li>Select game & difficulty, press Start</li>
+            <li>Type the word shown and press Enter (or it auto-matches)</li>
+            <li>Pop/shoot/catch words before they escape</li>
+            <li>Score points for correct words — extra for speed</li>
+          </ol>
+        </div>
+
+      </aside>
+    </main>
+  </div>
+
+<script>
+/* -------------------------
+  Typing Games Core Script
+   - Balloon Pop: words rise from bottom → pop by typing
+   - Word Shooter: words move left→right; type to shoot
+   - Rain Words: words fall top→bottom; type before they hit
+--------------------------*/
+
+const WORDS_EASY = ["cat","dog","sun","cup","book","car","pen","box","run","hat","tree","leaf","ball","red","blue","fast","jump","home"];
+const WORDS_MED = ["planet","school","teacher","student","coffee","laptop","window","button","animal","simple","random","garden","yellow","happy","mirror","cookie"];
+const WORDS_HARD = ["technology","development","computer","excellent","challenge","keyboard","performance","internet","education","motivation","experience","adventure"];
+
+let wordBank = WORDS_MED;
+let currentGame = "balloon";
+let spawnInterval = null;
+let moveInterval = null;
+let activeWords = []; // objects {id,el,word,x,y,spd}
+let board = document.getElementById("board");
+let typingInput = document.getElementById("typingInput");
+let startBtn = document.getElementById("startBtn");
+let pauseBtn = document.getElementById("pauseBtn");
+let restartBtn = document.getElementById("restartBtn");
+let clearBtn = document.getElementById("clearBtn");
+let muteBtn = document.getElementById("muteBtn");
+let gameSelect = document.getElementById("gameSelect");
+let difficulty = document.getElementById("difficulty");
+let spawnRateLabel = document.getElementById("spawnRateLabel");
+
+let statScore = document.getElementById("statScore");
+let statHits = document.getElementById("statHits");
+let statMiss = document.getElementById("statMiss");
+let statLives = document.getElementById("statLives");
+let modeChip = document.getElementById("modeChip");
+let timeChip = document.getElementById("timeChip");
+let scoreChip = document.getElementById("scoreChip");
+
+// game state
+let score=0, hits=0, misses=0, lives=5, running=false, muted=false;
+let spawnDelay = 1500; // ms
+let moveSpeed = 60; // ms tick
+let lastId = 0;
+
+/* helpers */
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+function pickWord(){
+  return wordBank[Math.floor(Math.random()*wordBank.length)];
+}
+function updateStats(){
+  statScore.textContent = score;
+  statHits.textContent = hits;
+  statMiss.textContent = misses;
+  statLives.textContent = lives;
+  scoreChip.textContent = "Score: "+score;
+}
+
+/* set difficulty */
+function setDiff(d){
+  difficulty.value = d;
+  if(d==="easy"){ wordBank=WORDS_EASY; spawnDelay=1900; moveSpeed=70; spawnRateLabel.textContent="Slow" }
+  else if(d==="medium"){ wordBank=WORDS_MED; spawnDelay=1400; moveSpeed=55; spawnRateLabel.textContent="Normal" }
+  else { wordBank=WORDS_HARD; spawnDelay=1000; moveSpeed=40; spawnRateLabel.textContent="Fast" }
+}
+setDiff("medium");
+
+/* switch game */
+gameSelect.addEventListener("change", (e)=>{
+  currentGame = e.target.value;
+  modeChip.textContent = "Mode: " + (currentGame==="balloon"?"Balloon Pop":currentGame==="shooter"?"Word Shooter":"Rain Words");
+  // reset board
+  clearBoard();
+});
+
+/* start/pause/restart */
+startBtn.addEventListener("click",()=>{ if(!running) startGame(); });
+pauseBtn.addEventListener("click", ()=>{ togglePause(); });
+restartBtn.addEventListener("click", ()=>{ resetGame(); startGame(); });
+clearBtn.addEventListener("click", ()=>{ typingInput.value=""; });
+muteBtn.addEventListener("click", ()=>{ muted=!muted; muteBtn.textContent = muted? "Unmute":"Mute"; });
+
+function startGame(){
+  if(running) return;
+  running=true; score=0; hits=0; misses=0; lives=5; updateStats();
+  typingInput.focus();
+  spawnLoop();
+  moveLoop();
+}
+
+function togglePause(){
+  if(!running) return;
+  running=false;
+  clearInterval(spawnInterval);
+  clearInterval(moveInterval);
+  spawnInterval=null; moveInterval=null;
+}
+
+function resetGame(){
+  running=false;
+  clearBoard();
+  clearInterval(spawnInterval); clearInterval(moveInterval);
+  spawnInterval=null; moveInterval=null;
+  score=0; hits=0; misses=0; lives=5; updateStats();
+}
+
+/* clear board */
+function clearBoard(){
+  activeWords.forEach(w=>{ if(w.el && w.el.parentNode) w.el.parentNode.removeChild(w.el) });
+  activeWords = [];
+  board.innerHTML = "";
+}
+
+/* spawn words */
+function spawnLoop(){
+  spawnInterval = setInterval(()=>{ if(!running) return; spawnWord(); }, spawnDelay);
+  // spawn immediately
+  spawnWord();
+}
+
+function spawnWord(){
+  let w = pickWord();
+  let id = ++lastId;
+  let el = document.createElement("div");
+  el.className = "word";
+  el.textContent = w;
+  el.dataset.word = w;
+  el.id = "w"+id;
+
+  // style per game
+  if(currentGame==="balloon") { el.classList.add("balloon"); }
+  if(currentGame==="shooter") { el.classList.add("target"); }
+  if(currentGame==="rain") { el.classList.add("drop"); }
+
+  // starting positions
+  let bw = board.clientWidth, bh = board.clientHeight;
+  let x = rand(10, bw-10);
+  let y = (currentGame==="balloon") ? bh+40 : (currentGame==="shooter") ? rand(30,bh-30) : -40;
+
+  el.style.left = x + "px";
+  el.style.top = y + "px";
+  board.appendChild(el);
+
+  let spd = (currentGame==="balloon") ? rand(30,70) : (currentGame==="shooter") ? rand(1,2) : rand(30,65);
+  // normalize spd by difficulty
+  if(difficulty.value==="easy") spd *= 1.25;
+  if(difficulty.value==="hard") spd *= 0.8;
+
+  activeWords.push({id, el, word:w, x, y, spd});
+}
+
+/* movement tick */
+function moveLoop(){
+  moveInterval = setInterval(()=>{
+    if(!running) return;
+    let bw = board.clientWidth, bh = board.clientHeight;
+    for(let i=activeWords.length-1;i>=0;i--){
+      let w = activeWords[i];
+      if(!w.el) continue;
+      // update position based on game
+      if(currentGame==="balloon"){
+        w.y -= (w.spd/60); // rise
+        // apply left-right float
+        w.x += Math.sin(Date.now()/500 + w.id) * 0.3;
+      } else if(currentGame==="shooter"){
+        // move right to left (simulate targets moving)
+        w.x -= (1 + (w.spd/40));
+      } else if(currentGame==="rain"){
+        w.y += (w.spd/60); // fall
+        w.x += Math.sin((Date.now()/400)+w.id)*0.4;
+      }
+
+      // set element
+      w.el.style.left = Math.max(10, Math.min(bw-20, Math.round(w.x))) + "px";
+      w.el.style.top = Math.round(w.y) + "px";
+
+      // check out of bounds (miss)
+      if(currentGame==="balloon" && w.y < -40){
+        // balloon escaped top
+        removeWordByIndex(i, false);
+      } else if(currentGame==="shooter" && w.x < -80){
+        removeWordByIndex(i, false);
+      } else if(currentGame==="rain" && w.y > bh+40){
+        removeWordByIndex(i, false);
+      }
+    }
+  }, moveSpeed);
+}
+
+/* remove word by index (missed or popped) */
+function removeWordByIndex(i, wasHit){
+  let w = activeWords[i];
+  if(!w) return;
+  // score
+  if(wasHit){
+    hits++; score += Math.max(1, Math.round(10 + (50 / (w.word.length))));
+  } else {
+    misses++; lives--;
+  }
+  // remove element
+  if(w.el && w.el.parentNode) w.el.parentNode.removeChild(w.el);
+  activeWords.splice(i,1);
+  updateStats();
+  // game over
+  if(lives<=0){
+    alert("Game Over! Score: "+score);
+    resetGame();
+  }
+}
+
+/* match input */
+typingInput.addEventListener("keydown", function(e){
+  if(e.key==="Enter"){
+    let val = this.value.trim();
+    if(!val) return;
+    // find best match (exact)
+    for(let i=0;i<activeWords.length;i++){
+      if(activeWords[i].word.toLowerCase() === val.toLowerCase()){
+        // hit
+        let el = activeWords[i].el;
+        // small pop animation
+        el.style.transform = "scale(1.15)";
+        setTimeout(()=>{ if(el) el.style.transform = ""; }, 120);
+        removeWordByIndex(i, true);
+        this.value = "";
+        if(!muted) playPop();
+        return;
+      }
+    }
+    // no exact: try partial earliest match
+    for(let i=0;i<activeWords.length;i++){
+      if(activeWords[i].word.toLowerCase().startsWith(val.toLowerCase())){
+        // allow partial; highlight
+        activeWords[i].el.style.boxShadow = "0 12px 30px rgba(255,255,0,0.12)";
+        if(!muted) playBeep();
+        return;
+      }
+    }
+    // wrong attempt, penalty small
+    misses++; lives--; updateStats();
+    if(lives<=0){ alert("Game Over! Score: "+score); resetGame(); }
+  }
+});
+
+/* auto matching as you type (optional helpful) */
+typingInput.addEventListener("input", function(){
+  let val = this.value.trim().toLowerCase();
+  if(!val) return;
+  // auto pop if exact
+  for(let i=0;i<activeWords.length;i++){
+    if(activeWords[i].word.toLowerCase() === val){
+      let el = activeWords[i].el;
+      removeWordByIndex(i, true);
+      this.value="";
+      if(!muted) playPop();
+      break;
+    }
+  }
+});
+
+/* audio */
+function playPop(){
+  const a = new Audio("https://freesound.org/data/previews/66/66717_931655-lq.mp3");
+  a.play().catch(()=>{});
+}
+function playBeep(){
+  const b = new Audio("https://freesound.org/data/previews/256/256113_3263906-lq.mp3");
+  b.play().catch(()=>{});
+}
+
+/* small UI wiring */
+difficulty.addEventListener("change",(e)=> setDiff(e.target.value));
+gameSelect.addEventListener("change", ()=> { currentGame = gameSelect.value; modeChip.textContent = "Mode: " + (currentGame==="balloon"?"Balloon Pop":currentGame==="shooter"?"Word Shooter":"Rain Words"); clearBoard(); });
+
+/* make board responsive on resize */
+window.addEventListener("resize", ()=> {
+  // reposition existing words if needed
+  activeWords.forEach(w => {
+    w.x = Math.min(board.clientWidth-20, Math.max(10, w.x));
+    w.y = Math.min(board.clientHeight-20, Math.max(-40, w.y));
+  });
+});
+
+/* initialize */
+updateStats();
+typingInput.focus();
+
+/* optional: keyboard mobile focus helper */
+board.addEventListener("touchstart", ()=> typingInput.focus());
+
+</script>
+</body>
+</html>
