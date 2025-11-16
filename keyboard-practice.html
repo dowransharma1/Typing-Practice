@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>3D Keyboard Practice + Finger Model</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Orbitron:wght@500&display=swap" rel="stylesheet" />
+
+<style>
+/* --------------- GLOBAL STYLES ---------------- */
+body {
+    background: #070b17;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    text-align: center;
+    padding: 20px;
+}
+
+h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 40px;
+    margin-bottom: 10px;
+    color: #00eaff;
+    text-shadow: 0 0 20px #00eaff;
+}
+
+/* CONTAINER */
+.wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 30px;
+}
+
+/* --------------- LESSON BOX ---------------- */
+.lesson-box {
+    width: 300px;
+    padding: 20px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    border: 1px solid #0ff;
+    box-shadow: 0 0 20px rgba(0,255,255,0.3);
+}
+
+.lesson-box h2 {
+    color: #00eaff;
+    margin-bottom: 10px;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    background: #0d172f;
+    color: #fff;
+    border-radius: 10px;
+    border: 2px solid #00eaff;
+    font-size: 16px;
+}
+
+/* PRACTICE TEXT */
+#practiceText {
+    margin-top: 20px;
+    font-size: 25px;
+    color: #ffd700;
+    text-shadow: 0 0 15px #ffd700;
+}
+
+/* INPUT */
+#inputBox {
+    margin-top: 20px;
+    width: 90%;
+    padding: 14px;
+    background: #111c33;
+    color: white;
+    border-radius: 12px;
+    border: 2px solid #00eaff;
+    font-size: 20px;
+}
+
+/* --------------- KEYBOARD ---------------- */
+.keyboard {
+    margin-top: 20px;
+    padding: 25px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.03);
+    box-shadow: 0 0 20px rgba(0,255,255,0.2);
+    transform: perspective(900px) rotateX(10deg);
+}
+
+.row {
+    display: flex;
+    justify-content: center;
+    margin: 8px;
+}
+
+.key {
+    width: 55px;
+    height: 60px;
+    margin: 5px;
+    background: #0f1a2b;
+    border-radius: 10px;
+    border: 2px solid #1e2f4a;
+    color: #fff;
+    font-size: 22px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: 0.2s;
+}
+
+/* Finger colors */
+.pinkie { background: #ff2b2b33; }
+.ring   { background: #ff7f0033; }
+.middle { background: #ffd00033; }
+.index  { background: #00ff6a33; }
+.thumb  { background: #009dff33; }
+
+.key.active {
+    transform: translateY(-6px) scale(1.12);
+    border-color: #00eaff;
+    box-shadow: 0 0 22px #00eaff;
+}
+
+/* --------------- HAND MODEL ---------------- */
+.hand-box {
+    width: 300px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 15px;
+    padding: 20px;
+    border: 1px solid #00eaff;
+    box-shadow: 0 0 20px rgba(0,255,255,0.3);
+}
+
+.finger {
+    height: 45px;
+    margin: 10px auto;
+    width: 80%;
+    border-radius: 10px;
+    background: #111a2b;
+    border: 2px solid #1e2f4a;
+    transition: 0.2s;
+}
+
+/* glow when active */
+.finger.active {
+    background: #00eaff55;
+    box-shadow: 0 0 25px #00eaff;
+}
+
+/* --------------- HEATMAP ---------------- */
+.heatmap {
+    margin-top: 25px;
+    padding: 20px;
+    border-radius: 15px;
+    background: rgba(255,255,255,0.04);
+    box-shadow: 0 0 15px rgba(0,255,255,0.2);
+}
+
+.heatmap span {
+    display: block;
+    margin: 5px 0;
+    font-size: 18px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>3D Keyboard Practice + Finger Animation</h1>
+
+<div class="wrapper">
+
+    <!-- LESSON BOX -->
+    <div class="lesson-box">
+        <h2>Lessons</h2>
+        <select id="lessonSelect">
+            <option value="az">A–Z Practice</option>
+            <option value="home">Home Row ASDF JKL;</option>
+            <option value="words">Basic Words</option>
+        </select>
+
+        <div id="practiceText">Press any key to start...</div>
+
+        <input id="inputBox" placeholder="Type here..." autofocus />
+    </div>
+
+    <!-- KEYBOARD -->
+    <div>
+        <div class="keyboard" id="keyboard">
+
+            <div class="row">
+                <div class="key pinkie">Q</div>
+                <div class="key ring">W</div>
+                <div class="key middle">E</div>
+                <div class="key index">R</div>
+                <div class="key index">T</div>
+                <div class="key index">Y</div>
+                <div class="key index">U</div>
+                <div class="key middle">I</div>
+                <div class="key ring">O</div>
+                <div class="key pinkie">P</div>
+            </div>
+
+            <div class="row">
+                <div class="key pinkie">A</div>
+                <div class="key ring">S</div>
+                <div class="key middle">D</div>
+                <div class="key index">F</div>
+                <div class="key index">G</div>
+                <div class="key index">H</div>
+                <div class="key index">J</div>
+                <div class="key middle">K</div>
+                <div class="key ring">L</div>
+            </div>
+
+            <div class="row">
+                <div class="key pinkie">Z</div>
+                <div class="key ring">X</div>
+                <div class="key middle">C</div>
+                <div class="key index">V</div>
+                <div class="key index">B</div>
+                <div class="key index">N</div>
+                <div class="key index">M</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RIGHT HAND MODEL + HEATMAP -->
+    <div class="hand-box">
+        <h2>Finger Guide</h2>
+
+        <div id="finger-pinkie" class="finger">Pinkie</div>
+        <div id="finger-ring" class="finger">Ring</div>
+        <div id="finger-middle" class="finger">Middle</div>
+        <div id="finger-index" class="finger">Index</div>
+        <div id="finger-thumb" class="finger">Thumb (Space)</div>
+
+        <div class="heatmap">
+            <h3>Finger Heatmap</h3>
+            <span id="heatPinkie">Pinkie: 0</span>
+            <span id="heatRing">Ring: 0</span>
+            <span id="heatMiddle">Middle: 0</span>
+            <span id="heatIndex">Index: 0</span>
+            <span id="heatThumb">Thumb: 0</span>
+        </div>
+    </div>
+
+</div>
+<script>
+
+// KEY → FINGER MAP
+const fingerMap = {
+    "Q":"pinkie","A":"pinkie","Z":"pinkie","P":"pinkie","L":"ring","O":"ring","S":"ring","X":"ring",
+    "W":"ring","K":"middle","I":"middle","D":"middle","C":"middle","E":"middle",
+    "R":"index","T":"index","F":"index","G":"index","H":"index","J":"index",
+    "Y":"index","U":"index","V":"index","B":"index","N":"index","M":"index",
+    " ":"thumb"
+};
+
+let heat = {
+    pinkie:0, ring:0, middle:0, index:0, thumb:0
+};
+
+let lessonText = {
+    az: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    home: "ASDF JKL;",
+    words: "cat dog sun run cup box fun lap map top fan"
+};
+
+// Practice Mode
+document.getElementById("lessonSelect").addEventListener("change", e=>{
+    let lesson = e.target.value;
+    document.getElementById("practiceText").textContent = lessonText[lesson];
+});
+
+const keys = document.querySelectorAll(".key");
+
+// SOUND
+let keySound = new Audio("https://freesound.org/data/previews/66/66717_931655-lq.mp3");
+
+// KEY EVENT LISTENERS
+document.addEventListener("keydown", function(e){
+
+    let key = e.key.toUpperCase();
+
+    if (keySound) keySound.play();
+
+    // highlight key
+    keys.forEach(k=>{
+        if(k.textContent===key){
+            k.classList.add("active");
+        }
+    });
+
+    // highlight finger
+    let finger = fingerMap[key] || "";
+    if(finger){
+        let el = document.getElementById("finger-"+finger);
+        el.classList.add("active");
+
+        // update heatmap count
+        heat[finger]++;
+        document.getElementById("heat"+finger.charAt(0).toUpperCase()+finger.slice(1)).textContent =
+            finger.charAt(0).toUpperCase()+finger.slice(1)+": "+heat[finger];
+    }
+});
+
+// remove highlight
+document.addEventListener("keyup", function(e){
+    let key = e.key.toUpperCase();
+
+    keys.forEach(k=>{
+        if(k.textContent===key){
+            k.classList.remove("active");
+        }
+    });
+
+    let finger = fingerMap[key] || "";
+    if(finger){
+        document.getElementById("finger-"+finger).classList.remove("active");
+    }
+});
+
+</script>
+
+</body>
+</html>
+
+
+
+
